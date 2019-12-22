@@ -10,16 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class SearchResults extends AppCompatActivity {
 
-    private ListView mListView;
-    private ArrayAdapter aAdapter;
-    private static final String BUNDLE_NAME = "bundle";
-    private static final String BASKET_NAME = "places";
     private static String TAG = "TEO";
     private SearchResultsAdapter adapter;
 

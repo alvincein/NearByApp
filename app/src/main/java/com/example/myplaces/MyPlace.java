@@ -1,7 +1,10 @@
 package com.example.myplaces;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.RequiresApi;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -25,13 +28,26 @@ public class MyPlace implements Parcelable {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     protected MyPlace(Parcel parcel) {
         this.name = parcel.readString();
         this.rating = parcel.readDouble();
         this.icon_link = parcel.readString();
+        this.place_id = parcel.readString();
+        this.open_now = parcel.readBoolean();
+        this.price_level = parcel.readInt();
+        this.types = parcel.readArrayList(null);
+        this.photos_link = parcel.readString();
+        this.vicinity = parcel.readString();
+        this.user_ratings_total = parcel.readInt();
+        this.icon_link = parcel.readString();
+        double lat = parcel.readDouble();
+        double lon = parcel.readDouble();
+        this.location = new LatLng(lat,lon);
     }
 
     public static final Creator<MyPlace> CREATOR = new Creator<MyPlace>() {
+        @RequiresApi(api = Build.VERSION_CODES.Q)
         @Override
         public MyPlace createFromParcel(Parcel in) {
             return new MyPlace(in);
@@ -138,10 +154,21 @@ public class MyPlace implements Parcelable {
         return 0;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getName());
         dest.writeDouble(getRating());
         dest.writeString(getIcon_link());
+        dest.writeString(getPlace_id());
+        dest.writeBoolean(isOpen_now());
+        dest.writeInt(getPrice_level());
+        dest.writeList(getTypes());
+        dest.writeString(getPhotos_link());
+        dest.writeString(getVicinity());
+        dest.writeInt(getUser_ratings_total());
+        dest.writeString(getIcon_link());
+        dest.writeDouble(getLocation().latitude);
+        dest.writeDouble(getLocation().longitude);
     }
 }

@@ -1,5 +1,7 @@
 package com.example.myplaces;
 
+import android.app.Application;
+import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,6 +25,8 @@ public class GsonWorker {
 
     private static final String PLACES_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
     private static final String PLACES_KEY = "AIzaSyAtj0HrLGRjXpeDBpoi2jpuaAZEPIOC5kA";
+
+    private static final String requestsBoundary = "OVER_QUERY_LIMIT";
 
     private String TAG = "TEO";
 
@@ -75,7 +79,7 @@ public class GsonWorker {
     }
 
 
-    public ArrayList<MyPlace> getNearbyStores(LatLng userCoordinates, String type) {
+    public ArrayList<MyPlace> getNearbyStores(LatLng userCoordinates, String type, Context context) {
 
 
         ArrayList<MyPlace> places = new ArrayList<MyPlace>();
@@ -164,8 +168,11 @@ public class GsonWorker {
                         places.add(place);
 
                     }
+                } else if(status.equals(requestsBoundary)){
+
+                    return null;
                 }
-            } else {
+            } else  {
                 return null;
             }
         return places;

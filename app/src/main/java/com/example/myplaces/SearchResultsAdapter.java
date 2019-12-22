@@ -2,6 +2,9 @@ package com.example.myplaces;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,21 +16,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
 public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdapter.ViewHolder> {
 
 
-    private LayoutInflater mInflater;
     private ArrayList<MyPlace> places = new ArrayList<>();
     private Context context;
+    private View itemView;
 
     // data is passed into the constructor
     SearchResultsAdapter(Context context, ArrayList<MyPlace> places) {
         this.context = context;
-        this.mInflater = LayoutInflater.from(context);
         this.places = places;
     }
 
@@ -39,7 +39,7 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext())
+        itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.result, parent, false);
 
         return new ViewHolder(itemView);
@@ -50,9 +50,9 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.name.setText(places.get(position).getName());
         holder.rating.setText(String.valueOf(places.get(position).getRating()));
-        if(places.get(position).getIcon_link() != null){
-            Log.d("TEO", places.get(position).getIcon_link());
-            Picasso.with(context).load(places.get(position).getIcon_link()).into(holder.image);
+        if(places.get(position).getPhotos_link() != null){
+            Log.d("TEO", places.get(position).getPhotos_link());
+            Picasso.with(context).load(places.get(position).getPhotos_link()).into(holder.background_img);
         }
     }
 
@@ -60,13 +60,13 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
 
         TextView name;
         TextView rating;
-        ImageView image;
+        ImageView background_img;
 
         ViewHolder(View itemView) {
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.name);
             rating = (TextView) itemView.findViewById(R.id.rating);
-            image = (ImageView) itemView.findViewById(R.id.avatar);
+            background_img = (ImageView) itemView.findViewById(R.id.background_img);
             itemView.setOnClickListener(this);
         }
 

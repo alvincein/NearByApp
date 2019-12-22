@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -64,9 +65,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final String MAPVIEW_BUNDLE_KEY = "AIzaSyAtj0HrLGRjXpeDBpoi2jpuaAZEPIOC5kA";
 
-    private double cur_lat = 0;
-    private double cur_lon = 0;
-
     private LatLng myLocation;
     private boolean locationFound = false;
 
@@ -88,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Button btn = findViewById(R.id.srch_button);
 
         Button btn2 = findViewById(R.id.refresh_button);
+
+        Button filters_btn = findViewById(R.id.filters_btn);
 
         restaurant = findViewById(R.id.checkBox);
         bar = findViewById(R.id.checkBox6);
@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 MyPermissions.requestCoarseLocation(v);
 
                 printPlaces();
+
             }
         });
 
@@ -133,15 +134,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 //getCurrentPlace(placesClient);
                 updateCurrentLocation();
+
+                places = createTempPlaces();
+
+                Intent intent = new Intent(MainActivity.this, PlaceActivity.class);
+                intent.putParcelableArrayListExtra("Places", places);
+                startActivity(intent);
             }
 
+        });
+
+        filters_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                PopUpFilters dialogFragment = new PopUpFilters();
+                dialogFragment.show(getSupportFragmentManager(),TAG);
+            }
         });
 
         restaurant.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                bar.setChecked(false);
-                coffee.setChecked(false);
+                    bar.setChecked(false);
+                    coffee.setChecked(false);
             }
         });
         bar.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -174,7 +190,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 else if(coffee.isChecked())
                     type = "cafe";
 
-                places = gson.getNearbyStores(myLocation, type);
+                // API CALL
+                //places = gson.getNearbyStores(myLocation, type, this);
+
+                // Temporary fake data
+                places = createTempPlaces();
+
+
                 if (places != null && places.size()>0) {
                     //Get best store name
                     Log.d(TAG, String.valueOf(places.size()));
@@ -189,6 +211,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     intent.putParcelableArrayListExtra("Places", places);
                     startActivity(intent);
                 } else {
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast toast=Toast.makeText(getApplicationContext(),"Σφάλμα κατά την λήψη τοπθεσιών!",Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+                    });
                     Log.d(TAG, "error");
                 }
             }).start();
@@ -197,6 +226,47 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Toast toast=Toast.makeText(getApplicationContext(),"Δεν είναι δυνατή η εύρεση τοποθεσίας της συσκευής",Toast.LENGTH_LONG);
             toast.show();
         }
+
+    }
+
+    public ArrayList<MyPlace> createTempPlaces() {
+        ArrayList<MyPlace> temp = new ArrayList<>();
+        MyPlace place1 = new MyPlace();
+        MyPlace place2 = new MyPlace();
+        MyPlace place3 = new MyPlace();
+
+        place1.setName("Τα Γοριλάκια");
+        place1.setRating(4.7);
+        place1.setOpen_now(true);
+        place1.setVicinity("Κάτω Τούμπα");
+        place1.setPrice_level(2);
+        place1.setUser_ratings_total(100);
+        place1.setPhotos_link("https://www.bestofrestaurants.gr/thessaloniki/anatoliki_thessaloniki/sites/restaurants/ta_gorilakia/photogallery/original/03.jpg");
+        place1.setLocation(new LatLng(40.608772, 22.979280));
+
+        place2.setName("Γυράδικο");
+        place2.setRating(4.3);
+        place2.setOpen_now(true);
+        place2.setVicinity("Άνω Τούμπα");
+        place2.setPrice_level(2);
+        place2.setUser_ratings_total(230);
+        place2.setPhotos_link("https://www.thelosouvlakia.gr/cms/Uploads/shopImages/gyradiko_thessaloniki_1209_katastima.jpg");
+        place2.setLocation(new LatLng(40.615029, 22.976974));
+
+        place3.setName("Ωμέγα");
+        place3.setRating(4.1);
+        place3.setOpen_now(true);
+        place3.setVicinity("Κάτω Τούμπα");
+        place3.setPrice_level(2);
+        place3.setUser_ratings_total(42);
+        place3.setPhotos_link("https://www.tavernoxoros.gr/img/i/rOeC6vBxb-kj");
+        place3.setLocation(new LatLng(40.608587, 22.978683 ));
+
+        temp.add(place1);
+        temp.add(place2);
+        temp.add(place3);
+
+        return temp;
 
     }
 
@@ -262,8 +332,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             // Logic to handle location object
-                            cur_lat = location.getLatitude();
-                            cur_lon = location.getLongitude();
+                            double cur_lat = location.getLatitude();
+                            double cur_lon = location.getLongitude();
                             myLocation = new LatLng(cur_lat, cur_lon);
                             locationFound = true;
                             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.latitude, myLocation.longitude),  16));
@@ -279,7 +349,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         this.googleMap = googleMap;
 
-            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
                 //    Activity#requestPermissions
