@@ -19,6 +19,7 @@
         <meta-data android:name="com.google.android.maps.v2.API_KEY"
             android:value= "AIzaSyAtj0HrLGRjXpeDBpoi2jpuaAZEPIOC5kA"/>
         <activity android:name=".SearchResults"></activity>
+        <activity android:name=".PlaceActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
