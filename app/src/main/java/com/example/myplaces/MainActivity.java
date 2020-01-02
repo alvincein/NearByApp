@@ -1,19 +1,13 @@
 package com.example.myplaces;
 
-import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,19 +17,13 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -43,61 +31,83 @@ import com.google.android.libraries.places.api.model.PlaceLikelihood;
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
 import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.android.material.snackbar.Snackbar;
+
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private String API_KEY = "AIzaSyAtj0HrLGRjXpeDBpoi2jpuaAZEPIOC5kA";
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, PopUpFilters.PopUpDialogListener {
+
     private String TAG = "TEO";
 
-
-    private FusedLocationProviderClient fusedLocationClient;
-
+    // Data request
     private GsonWorker gson = new GsonWorker();
+    private String API_KEY = "AIzaSyAtj0HrLGRjXpeDBpoi2jpuaAZEPIOC5kA";
 
+    // Location
+    private FusedLocationProviderClient fusedLocationClient;
+    private LatLng myLocation;
+    private Location loc;
+    private boolean locationFound = false;
+
+    // Map
     private MapView mMapView;
-
-    private PlacesClient placesClient;
-
+    private GoogleMap googleMap;
     private static final String MAPVIEW_BUNDLE_KEY = "AIzaSyAtj0HrLGRjXpeDBpoi2jpuaAZEPIOC5kA";
 
-    private LatLng myLocation;
-    private boolean locationFound = false;
+
+    // May be useful in the future
+    private PlacesClient placesClient;
+
+    // Permissions manager
+    private MyPermissions myPermissions;
 
     private ArrayList<MyPlace> places = new ArrayList<MyPlace>();
 
-    private GoogleMap googleMap;
+    private FilterParameters parameters = new FilterParameters();
+    private ArrayList<Boolean> types_bool = new ArrayList<Boolean>();
+    private static ArrayList<String> types = new ArrayList<String>() {
+        {
+            add("restaurant");
+            add("bar");
+            add("cinema");
+            add("cafe");
+            add("club");
+            add("park");
+        }
 
-    private CheckBox restaurant;
-    private CheckBox bar;
-    private CheckBox coffee;
+    };
+
+    private PopUpFilters dialogFragment = new PopUpFilters();
+
+    private CheckBox checkBox1;
+    private CheckBox checkBox2;
+    private CheckBox checkBox3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MyPermissions myPermissions = new MyPermissions(this, this);
+        // Check permissions everytime activity starts
+        myPermissions = new MyPermissions(this, this);
 
-        Button btn = findViewById(R.id.srch_button);
-
-        Button btn2 = findViewById(R.id.refresh_button);
-
+        Button search = findViewById(R.id.srch_button);
+        Button refresh = findViewById(R.id.refresh_button);
         Button filters_btn = findViewById(R.id.filters_btn);
 
-        restaurant = findViewById(R.id.checkBox);
-        bar = findViewById(R.id.checkBox6);
-        coffee = findViewById(R.id.checkBox7);
+        checkBox1 = findViewById(R.id.checkBox);
+        checkBox2 = findViewById(R.id.checkBox6);
+        checkBox3 = findViewById(R.id.checkBox7);
 
+        // Get user's current location
         updateCurrentLocation();
 
-        // *** IMPORTANT ***
-        // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
-        // objects or sub-Bundles.
+        // Create Map
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
@@ -106,40 +116,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMapView.onCreate(mapViewBundle);
         mMapView.getMapAsync(this);
 
+        // May be useful in futere
+            // Initialize the SDK
+            Places.initialize(getApplicationContext(), API_KEY);
 
-
-
-        // Initialize the SDK
-        Places.initialize(getApplicationContext(), API_KEY);
-
-        // Create a new Places client instance
-        placesClient = Places.createClient(this);
-
+            // Create a new Places client instance
+            placesClient = Places.createClient(this);
 
 
         // Search Button
-        btn.setOnClickListener(new View.OnClickListener() {
+        search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // Make sure permissions are granted
                 MyPermissions.requestLocation(v);
                 MyPermissions.requestCoarseLocation(v);
 
-                printPlaces();
+                if(!parameters.isEmpty()){
+                    Toast.makeText(getApplicationContext(),"Παρακαλώ συμπληρώστε κάποιο φίλτρο αναζήτησης",Toast.LENGTH_LONG).show();
+                }
+                else {
+                    placesSearch();
+                }
+
 
             }
         });
 
-        btn2.setOnClickListener(new View.OnClickListener() {
+        refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //getCurrentPlace(placesClient);
                 updateCurrentLocation();
-
-                places = createTempPlaces();
-
-                Intent intent = new Intent(MainActivity.this, PlaceActivity.class);
-                intent.putParcelableArrayListExtra("Places", places);
-                startActivity(intent);
             }
 
         });
@@ -147,70 +156,88 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         filters_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                PopUpFilters dialogFragment = new PopUpFilters();
+                // Open dialog with filter selection
                 dialogFragment.show(getSupportFragmentManager(),TAG);
             }
         });
 
-        restaurant.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        checkBox1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    bar.setChecked(false);
-                    coffee.setChecked(false);
+                    checkBox2.setChecked(false);
+                    checkBox3.setChecked(false);
             }
         });
-        bar.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        checkBox2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                restaurant.setChecked(false);
-                coffee.setChecked(false);
+                checkBox1.setChecked(false);
+                checkBox3.setChecked(false);
             }
         });
-        coffee.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        checkBox3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                bar.setChecked(false);
-                restaurant.setChecked(false);
+                checkBox2.setChecked(false);
+                checkBox1.setChecked(false);
             }
         });
 
     }
 
-    public void printPlaces(){
+    public void placesSearch(){
+        // Have to know user's location
         if(locationFound) {
-            Toast toast2 =Toast.makeText(getApplicationContext(),"Αναζήτηση τοποθεσιών γύρω σας... \n Παρακαλώ περιμένετε",Toast.LENGTH_LONG);
-            toast2.show();
+
+            /* categories for google
+
+            StringBuilder s_types = new StringBuilder();
+
+            for(int i=0 ; i<types.size(); i++){
+                if(types_bool.get(i)){
+                    s_types.append(types.get(i) + " ");
+                }
+
+            }
+
+             */
+
+            // Run places search as thread, for performance purposes
             new Thread(() -> {
-                String type = null;
-                if(restaurant.isChecked())
-                    type = "restaurant";
-                else if(bar.isChecked())
-                    type = "bar";
-                else if(coffee.isChecked())
-                    type = "cafe";
 
                 // API CALL
-                //places = gson.getNearbyStores(myLocation, type, this);
+                places = gson.getNearbyPlaces(myLocation, parameters, this);
+
+                // FB CALL
+                /*
+                try {
+                    places = gson.getFacebookPlaces(loc,parameters);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                */
+
 
                 // Temporary fake data
-                places = createTempPlaces();
+                //places = createTempPlaces();
 
 
+                // If search is successful
                 if (places != null && places.size()>0) {
-                    //Get best store name
-                    Log.d(TAG, String.valueOf(places.size()));
+
+                    // Log them to be sure
                     for (MyPlace place : places) {
                         Log.d(TAG, " place is " + place.getName());
                         Log.d(TAG, " rating is " + place.getRating());
                     }
-                    //run on UI thread cause its a TextView
-                    //runOnUiThread(() -> bestSupermarket.setText(bestStore));
 
+                    // Prepare search results activity, pass down "places"
                     Intent intent = new Intent(MainActivity.this, SearchResults.class);
                     intent.putParcelableArrayListExtra("Places", places);
                     startActivity(intent);
+
                 } else {
+                    // Inform user in case of error
                     MainActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -223,12 +250,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }).start();
         }
         else {
+            // User's location data missing
             Toast toast=Toast.makeText(getApplicationContext(),"Δεν είναι δυνατή η εύρεση τοποθεσίας της συσκευής",Toast.LENGTH_LONG);
             toast.show();
         }
 
     }
 
+    // FOR TESTING PURPOSES
+    // Temp fake data. Will be deleted when app is kinda ready for use.
     public ArrayList<MyPlace> createTempPlaces() {
         ArrayList<MyPlace> temp = new ArrayList<>();
         MyPlace place1 = new MyPlace();
@@ -243,15 +273,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         place1.setUser_ratings_total(100);
         place1.setPhotos_link("https://www.bestofrestaurants.gr/thessaloniki/anatoliki_thessaloniki/sites/restaurants/ta_gorilakia/photogallery/original/03.jpg");
         place1.setLocation(new LatLng(40.608772, 22.979280));
+        place1.setPlace_id("000000");
 
         place2.setName("Γυράδικο");
-        place2.setRating(4.3);
+        place2.setRating(4.8);
         place2.setOpen_now(true);
         place2.setVicinity("Άνω Τούμπα");
         place2.setPrice_level(2);
         place2.setUser_ratings_total(230);
         place2.setPhotos_link("https://www.thelosouvlakia.gr/cms/Uploads/shopImages/gyradiko_thessaloniki_1209_katastima.jpg");
         place2.setLocation(new LatLng(40.615029, 22.976974));
+        place2.setPlace_id("111111");
 
         place3.setName("Ωμέγα");
         place3.setRating(4.1);
@@ -261,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         place3.setUser_ratings_total(42);
         place3.setPhotos_link("https://www.tavernoxoros.gr/img/i/rOeC6vBxb-kj");
         place3.setLocation(new LatLng(40.608587, 22.978683 ));
+        place3.setPlace_id("222222");
 
         temp.add(place1);
         temp.add(place2);
@@ -270,19 +303,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
 
-        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
-        if (mapViewBundle == null) {
-            mapViewBundle = new Bundle();
-            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
-        }
-
-        mMapView.onSaveInstanceState(mapViewBundle);
-    }
-
+    // Not necessary for now
     public void getCurrentPlace(PlacesClient placesClient){
         // Use fields to define the data types to return.
         List<Place.Field> placeFields = Collections.singletonList(Place.Field.NAME);
@@ -321,48 +343,64 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
     public void updateCurrentLocation(){
+        // Set Location Client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        // Update location
         fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            // Logic to handle location object
-                            double cur_lat = location.getLatitude();
-                            double cur_lon = location.getLongitude();
-                            myLocation = new LatLng(cur_lat, cur_lon);
-                            locationFound = true;
-                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.latitude, myLocation.longitude),  16));
-                            Toast toast=Toast.makeText(getApplicationContext(),"Η τοποθεσία σας ενημερώθηκε.",Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
+                .addOnSuccessListener(this, location -> {
+
+                    // Got last known location. In some rare situations this can be null.
+                    if (location != null) {
+                        loc = location;
+
+                        // Logic to handle location object
+                        double cur_lat = location.getLatitude();
+                        double cur_lon = location.getLongitude();
+                        myLocation = new LatLng(cur_lat, cur_lon);
+                        locationFound = true;
+
+                        // Animate camera to zoom in user's location
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.latitude, myLocation.longitude),  16));
+
+                        // Inform user
+                        Toast toast=Toast.makeText(getApplicationContext(),"Η τοποθεσία σας ενημερώθηκε.",Toast.LENGTH_SHORT);
+                        toast.show();
+
                     }
                 });
     }
 
+    /** Google Map Stuff **/
+    // Prepares map
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mMapView.onSaveInstanceState(mapViewBundle);
+    }
+
+    // Triggers when map is ready for display.
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         this.googleMap = googleMap;
 
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    Activity#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for Activity#requestPermissions for more details.
+                myPermissions.requestLocation(getCurrentFocus());
+                myPermissions.requestCoarseLocation(getCurrentFocus());
                 return;
             }
 
             googleMap.setMyLocationEnabled(true);
             if(myLocation != null){
-
                 googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.latitude, myLocation.longitude),  16));
             }
     }
@@ -402,5 +440,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    @Override
+    public void onDialogFinish(FilterParameters parameters) {
+        this.parameters = parameters;
     }
 }

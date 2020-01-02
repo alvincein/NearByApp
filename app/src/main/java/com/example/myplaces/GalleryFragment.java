@@ -20,12 +20,7 @@ public class GalleryFragment extends Fragment {
     private ArrayList<String> links = new ArrayList<>();
 
     private GalleryAdapter adapter;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
+    private Thread t = new Thread();
 
     @Nullable
     @Override
@@ -33,13 +28,23 @@ public class GalleryFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.photo_gallery, container, false);
 
-        generateImageLinks();
         // set up the RecyclerView
         RecyclerView recyclerView = rootView.findViewById(R.id.image_gallery);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(),2);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new GalleryAdapter(getContext(), links);
-        recyclerView.setAdapter(adapter);
+
+        Runnable r = () -> {
+            generateImageLinks();
+            adapter = new GalleryAdapter(getContext(), links);
+            recyclerView.setAdapter(adapter);
+            getActivity().runOnUiThread(adapter::notifyDataSetChanged);
+        };
+
+        if (t.isAlive()) {
+            t.interrupt();
+        }
+        t = new Thread(r);
+        t.start();
 
         return rootView;
     }

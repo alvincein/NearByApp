@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">NearBy</string>\
+    <string name="app_name">NearBy</string>
+    <string name="facebook_app_id">590683831724556</string>
 </resources>

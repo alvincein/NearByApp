@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class MyPlace implements Parcelable {
@@ -17,14 +18,17 @@ public class MyPlace implements Parcelable {
     private LatLng location;
     private boolean open_now;
     private int price_level;
-    private double rating;
+    private Double rating;
     private ArrayList<String> types = new ArrayList<String>();
     private String photos_link;
     private String vicinity;
     private int user_ratings_total;
     private String icon_link;
+    private String contact_number;
+    private String email;
 
     public MyPlace(){
+        this.rating = 0.0;
 
     }
 
@@ -44,6 +48,8 @@ public class MyPlace implements Parcelable {
         double lat = parcel.readDouble();
         double lon = parcel.readDouble();
         this.location = new LatLng(lat,lon);
+        this.contact_number = parcel.readString();
+        this.email = parcel.readString();
     }
 
     public static final Creator<MyPlace> CREATOR = new Creator<MyPlace>() {
@@ -80,7 +86,7 @@ public class MyPlace implements Parcelable {
         return price_level;
     }
 
-    public double getRating() {
+    public Double getRating() {
         return rating;
     }
 
@@ -102,6 +108,14 @@ public class MyPlace implements Parcelable {
 
     public int getUser_ratings_total() {
         return user_ratings_total;
+    }
+
+    public String getContact_number() {
+        return contact_number;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public void setPlace_id(String place_id) {
@@ -128,7 +142,7 @@ public class MyPlace implements Parcelable {
         this.price_level = price_level;
     }
 
-    public void setRating(double rating) {
+    public void setRating(Double rating) {
         this.rating = rating;
     }
 
@@ -146,6 +160,14 @@ public class MyPlace implements Parcelable {
 
     public void setUser_ratings_total(int user_ratings_total) {
         this.user_ratings_total = user_ratings_total;
+    }
+
+    public void setContact_number(String contact_number) {
+        this.contact_number = contact_number;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     // Ignore that
@@ -170,5 +192,7 @@ public class MyPlace implements Parcelable {
         dest.writeString(getIcon_link());
         dest.writeDouble(getLocation().latitude);
         dest.writeDouble(getLocation().longitude);
+        dest.writeString(getContact_number());
+        dest.writeString(getEmail());
     }
 }

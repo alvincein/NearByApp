@@ -34,14 +34,15 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         else if (position == 1)
         {
             fragment = new GalleryFragment();
+            fragment.setArguments(bundle);
         }
         else if (position == 2)
         {
-            fragment = new NavigationFragment();
+            fragment = new ReviewsFragment();
             fragment.setArguments(bundle);
         }
         else if (position == 3){
-            fragment = new NavigationFragment();
+            fragment = new InformationFragment();
             fragment.setArguments(bundle);
         }
         return fragment;
