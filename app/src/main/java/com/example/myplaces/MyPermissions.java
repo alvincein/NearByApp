@@ -12,13 +12,14 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 
+// Responsible for every permission required from user allowing app to work correctly.
 public class MyPermissions extends MainActivity {
 
     private static boolean LOCATION_GRANTED = false;
     private static boolean COARSE_LOCATION_GRANTED = false;
     private static final int REQUEST_CODE_LOCATION = 1;
     private static final int REQUEST_CODE_COARSE_LOCATION = 2;
-    private static String TAG = "TEO";
+    private static String TAG = "MyPermissions";
     private static Context context;
     private static Activity activity;
 

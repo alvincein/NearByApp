@@ -1,6 +1,7 @@
 package com.example.myplaces;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ public class GalleryFragment extends Fragment {
 
     private GalleryAdapter adapter;
     private Thread t = new Thread();
+    private MyPlace placeDetails = new MyPlace();
 
     @Nullable
     @Override
@@ -28,13 +30,14 @@ public class GalleryFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.photo_gallery, container, false);
 
+        Log.d("TEOgallery",placeDetails.getPhotos_links().toString());
+
         // set up the RecyclerView
         RecyclerView recyclerView = rootView.findViewById(R.id.image_gallery);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(),2);
         recyclerView.setLayoutManager(layoutManager);
 
         Runnable r = () -> {
-            generateImageLinks();
             adapter = new GalleryAdapter(getContext(), links);
             recyclerView.setAdapter(adapter);
             getActivity().runOnUiThread(adapter::notifyDataSetChanged);
@@ -47,6 +50,10 @@ public class GalleryFragment extends Fragment {
         t.start();
 
         return rootView;
+    }
+
+    public void onPhotosChange(ArrayList<String> links){
+        this.links = links;
     }
 
 

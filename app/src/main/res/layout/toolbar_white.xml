@@ -11,14 +11,14 @@
         android:layout_height="47dp"
         android:background="@null"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/imageButton3"
+        app:layout_constraintEnd_toStartOf="@+id/home"
         app:layout_constraintHorizontal_bias="0.34"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/back_btn_red" />
 
     <ImageButton
-        android:id="@+id/imageButton3"
+        android:id="@+id/home"
         android:layout_width="125dp"
         android:layout_height="80dp"
         android:background="@null"

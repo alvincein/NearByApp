@@ -14,20 +14,28 @@
 
     <TextView
         android:id="@+id/name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="70dp"
+        android:layout_marginEnd="70dp"
+        android:gravity="center"
         android:text="Όνομα"
         android:textColor="#F44336"
-        android:textSize="36sp"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <TextView
         android:id="@+id/street"
-        android:layout_width="wrap_content"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="572dp"
+        android:ellipsize="marquee"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center"
+        android:marqueeRepeatLimit="marquee_forever"
         android:text="Οδός"
         android:textColor="#F44336"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -36,6 +44,16 @@
         app:layout_constraintTop_toBottomOf="@+id/name"
         app:layout_constraintVertical_bias="0.0" />
 
+    <ProgressBar
+        android:id="@+id/loading_bar_viewpager"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/view_pager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/view_pager"
+        app:layout_constraintTop_toTopOf="@+id/view_pager" />
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="0dp"
@@ -43,8 +61,10 @@
         android:layout_marginTop="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/street">
+        app:layout_constraintTop_toBottomOf="@+id/street"
+        app:layout_constraintVertical_bias="0.0">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
@@ -55,30 +75,31 @@
                 android:id="@+id/navigation_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:icon="@drawable/quantum_ic_clear_grey600_24" />
+                android:icon="@drawable/navigation_icon_red" />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/photo_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:icon="@mipmap/logo_foreground" />
+                android:icon="@drawable/gallery_icon_red" />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/reviews_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:icon="@drawable/quantum_ic_cloud_off_vd_theme_24" />
+                android:icon="@drawable/review_icon_red" />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/info_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:icon="@drawable/quantum_ic_search_grey600_24" />
+                android:icon="@drawable/info_icon_red" />
         </com.google.android.material.tabs.TabLayout>
+
     </androidx.viewpager.widget.ViewPager>
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/distance_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="200μ."
@@ -99,7 +120,7 @@
         app:layout_constraintEnd_toStartOf="@+id/star"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/street"
-        app:layout_constraintTop_toTopOf="@+id/textView4" />
+        app:layout_constraintTop_toTopOf="@+id/distance_text" />
 
     <ImageView
         android:id="@+id/star"
@@ -108,30 +129,31 @@
         android:layout_marginEnd="20dp"
         app:layout_constraintBottom_toTopOf="@+id/view_pager"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView4"
+        app:layout_constraintTop_toTopOf="@+id/distance_text"
         app:srcCompat="@drawable/star_icon" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="13dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/view_pager"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <ImageView
-            android:id="@+id/imageView6"
+            android:id="@+id/isOpen_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/textView3"
+            app:layout_constraintBottom_toTopOf="@+id/isOpen_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/open_now_icon" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/isOpen_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Ανοιχτό\nΤώρα"
@@ -142,16 +164,49 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageButton
+    <ToggleButton
         android:id="@+id/fav_btn"
-        android:layout_width="50dp"
-        android:layout_height="44dp"
+        android:layout_width="28dp"
+        android:layout_height="25dp"
         android:layout_marginEnd="20dp"
-        android:background="@null"
+        android:background="@drawable/fav_btn"
+        android:checked="false"
         android:scaleType="center"
+        android:text="@null"
+        android:textOff="@null"
+        android:textOn="@null"
         app:layout_constraintBottom_toTopOf="@+id/street"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:srcCompat="@drawable/fav_btn" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <ImageView
+        android:id="@+id/icon1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/view_pager"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
+        app:srcCompat="@drawable/bar_icon_red" />
+
+    <ImageView
+        android:id="@+id/icon2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/view_pager"
+        app:layout_constraintStart_toEndOf="@+id/icon1"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
+        app:srcCompat="@drawable/coffee_icon_red" />
+
+    <ImageView
+        android:id="@+id/icon3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/view_pager"
+        app:layout_constraintStart_toEndOf="@+id/icon2"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
+        app:srcCompat="@drawable/restaurant_icon_red" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

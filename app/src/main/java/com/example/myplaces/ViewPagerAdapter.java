@@ -2,29 +2,46 @@ package com.example.myplaces;
 
 
 import android.os.Bundle;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
+
     private MyPlace place = new MyPlace();
+    private MyPlace placeDetails = new MyPlace();
+
+    // Initialize fragments
+    private ReviewsFragment reviewsFragment = new ReviewsFragment();
+    private InformationFragment informationFragment = new InformationFragment();
+    private GalleryFragment galleryFragment = new GalleryFragment();
+
+    private static final String TAG = "ViewPagerAdapter";
 
     public ViewPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
-    public ViewPagerAdapter(FragmentManager fm, MyPlace place) {
+    public ViewPagerAdapter(FragmentManager fm, MyPlace place, MyPlace placeDetails) {
         super(fm);
         this.place = place;
+        this.placeDetails = placeDetails;
+    }
+
+    @Override
+    public int getItemPosition(@NonNull Object object) {
+        return POSITION_NONE;
     }
 
     @Override
     public Fragment getItem(int position) {
 
-
         Bundle bundle = new Bundle();
         bundle.putParcelable("place",place);
+        bundle.putParcelable("placeDetails",placeDetails);
         Fragment fragment = null;
         if (position == 0)
         {
@@ -33,16 +50,15 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         }
         else if (position == 1)
         {
-            fragment = new GalleryFragment();
+            fragment = galleryFragment;
             fragment.setArguments(bundle);
         }
         else if (position == 2)
         {
-            fragment = new ReviewsFragment();
-            fragment.setArguments(bundle);
+            fragment = reviewsFragment;
         }
         else if (position == 3){
-            fragment = new InformationFragment();
+            fragment = informationFragment;
             fragment.setArguments(bundle);
         }
         return fragment;
@@ -51,5 +67,15 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         return 4;
+    }
+
+
+    // Updates detailed place when api call is finished
+    public void replacePlace(MyPlace place){
+        this.placeDetails = place;
+        this.reviewsFragment.onReviewsChange(placeDetails.getReviews());
+        this.informationFragment.onInfoChange(placeDetails);
+        this.galleryFragment.onPhotosChange(placeDetails.getPhotos_links());
+        Log.d(TAG,placeDetails.getReviews().toString());
     }
 }

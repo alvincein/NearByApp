@@ -1,7 +1,6 @@
 package com.example.myplaces;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ViewHolder> {
@@ -43,9 +41,9 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ViewHold
         holder.name.setText(reviews.get(position).getUser());
         holder.rating.setText(String.valueOf(reviews.get(position).getRating()));
         holder.description.setText(reviews.get(position).getMessage());
+
         if(reviews.get(position).getPhoto_link() != null){
             Picasso.with(context).load(reviews.get(position).getPhoto_link()).into(holder.avatar);
-
         }
 
     }

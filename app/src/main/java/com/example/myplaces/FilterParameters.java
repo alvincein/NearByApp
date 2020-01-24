@@ -10,6 +10,9 @@ public class FilterParameters {
     private boolean cafe = false;
     private boolean club = false;
     private boolean park = false;
+    private String keyword = null;
+    private int max_price = 4;
+    private String rankby = null;
 
     private ArrayList<String> types = new ArrayList<>();
 
@@ -102,6 +105,35 @@ public class FilterParameters {
     }
 
 
+    // KEYWORD
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+
+
+    // MAX PRICE
+    public int getMax_price() {
+        return max_price;
+    }
+
+    public void setMax_price(int max_price) {
+        this.max_price = max_price;
+    }
+
+
+    // RANKBY
+    public String getRankby() {
+        return rankby;
+    }
+
+    public void setRankby(String rankby) {
+        this.rankby = rankby;
+    }
+
     // DISTANCE
     public int getDistance() {
         return distance;
@@ -111,29 +143,43 @@ public class FilterParameters {
         this.distance = distance;
     }
 
-    // IS EMPTY
+    // IS EMPTY | CHECK IF REQUIRED PARAMETERS ARE FULFILLED
     public boolean isEmpty(){
         if(!club && !restaurant && !cafe && !cinema && !park && !bar){
-            return false;
+            return true;
         }
-        else return true;
+        else return false;
     }
 
-    public ArrayList<String> getTypesList(){
+    // Returns a String that describes a parameter type
+    public String getType(){
+
+        String type = null;
 
         if(this.isRestaurant())
-            types.add(this.getRestaurantType());
+            type = this.getRestaurantType();
         if(this.isBar())
-            types.add(this.getBarType());
+            type = this.getBarType();
         if(this.isCafe())
-            types.add(this.getCafeType());
+            type = this.getCafeType();
         if(this.isCinema())
-            types.add(this.getCinemaType());
+            type = this.getCinemaType();
         if(this.isClub())
-            types.add(this.getClubType());
+            type = this.getClubType();
         if(this.isPark())
-            types.add(this.getParkType());
+            type = this.getParkType();
 
-        return this.types;
+        return type;
+    }
+
+    // Reseting parameters
+    public void clear(){
+        this.club = false;
+        this.cinema = false;
+        this.cafe = false;
+        this.park = false;
+        this.restaurant = false;
+        this.bar = false;
+        types.clear();
     }
 }

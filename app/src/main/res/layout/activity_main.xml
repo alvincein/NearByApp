@@ -7,48 +7,6 @@
     android:background="#FFFFFF"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginEnd="30dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/srch_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filters_btn">
-
-        <CheckBox
-            android:id="@+id/checkBox"
-            style="@android:style/Widget.Material.CompoundButton.CheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Εστιατόρια"
-            android:textColor="#F03535" />
-
-        <CheckBox
-            android:id="@+id/checkBox6"
-            style="@android:style/Widget.Material.CompoundButton.CheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Μπάρ"
-            android:textColor="#F03535" />
-
-        <CheckBox
-            android:id="@+id/checkBox7"
-            style="@android:style/Widget.Material.CompoundButton.CheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Καφέ"
-            android:textColor="#F03535" />
-
-    </LinearLayout>
-
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="0dp"
@@ -82,7 +40,7 @@
         android:text="Επιλογή Φίλτρων"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mapView"/>
+        app:layout_constraintTop_toBottomOf="@+id/mapView" />
 
     <ImageView
         android:id="@+id/imageView2"
@@ -101,21 +59,33 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="@+id/refresh_button"
+        app:layout_constraintBottom_toBottomOf="@+id/favs_btn"
         app:layout_constraintEnd_toEndOf="@+id/imageView2"
         app:layout_constraintStart_toStartOf="@+id/imageView2"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logo_w_bg" />
 
     <Button
-        android:id="@+id/refresh_button"
+        android:id="@+id/favs_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ανανέωση Τοποθεσίας"
+        android:text="Αγαπημένες Τοποθεσίες"
         android:textColorHighlight="#942121"
+        app:icon="@drawable/heart_icon_red_brd"
         app:layout_constraintBottom_toTopOf="@+id/mapView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+
+    <TextView
+        android:id="@+id/query_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="filters"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filters_btn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">NearBy</string>
     <string name="facebook_app_id">590683831724556</string>
+    <string name="places_api_key">AIzaSyAtj0HrLGRjXpeDBpoi2jpuaAZEPIOC5kA</string>
 </resources>

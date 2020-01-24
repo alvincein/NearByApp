@@ -3,7 +3,6 @@ package com.example.myplaces;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,6 +58,8 @@ public class NavigationFragment extends Fragment implements OnMapReadyCallback {
 
         mMapView.getMapAsync(this);
 
+
+        // On google maps direction press
         gMapsNavigation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,8 +80,8 @@ public class NavigationFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
 
         googleMap.setMyLocationEnabled(true);
-        Log.d("TEO",place.getName());
-        googleMap.addMarker(new MarkerOptions().position(place.getLocation()).title(place.getName()).snippet("-"));
+        // Set a marker with place's name on it
+        googleMap.addMarker(new MarkerOptions().position(place.getLocation()).title(place.getName()).snippet(place.getDescription()));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLocation(),  16));
 
     }
