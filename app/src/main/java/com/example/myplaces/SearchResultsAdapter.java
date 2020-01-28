@@ -33,7 +33,7 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
 
 
 
-    // data is passed into the constructor
+    // Data is passed into the constructor
     SearchResultsAdapter(Context context, ArrayList<MyPlace> places) {
         this.context = context;
         this.places = places;
@@ -56,7 +56,9 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        // Loading invisible.
         holder.result_progress.setVisibility(View.INVISIBLE);
+
         holder.name.setText(places.get(position).getName());
         holder.rating.setText(String.valueOf(places.get(position).getRating()));
         holder.distance.setText(String.valueOf(places.get(position).getDistance().intValue()) + " μ.");
@@ -66,18 +68,20 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
         holder.avatar.setSelected(true);
 
 
+        // Setting up query for image google API call
         String link = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=";
-
-        List<Place.Field> fields = Arrays.asList(Place.Field.PHOTO_METADATAS);
 
         String reference = places.get(position).getAvatar_link();
 
+        // Final link
         String request_link = link + reference +"&key=" + context.getString(R.string.places_api_key);
 
         if(reference != null) {
+            // Load image through Picasso, passing the link
             Picasso.with(context).load(request_link).into(holder.avatar);
         }
         else {
+            // If something goes wrong, load our logo as a default.
             holder.avatar.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.logo_w_bg));
         }
 

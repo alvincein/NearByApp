@@ -73,8 +73,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     // Updates detailed place when api call is finished
     public void replacePlace(MyPlace place){
         this.placeDetails = place;
+        // Update data on reviews fragment
         this.reviewsFragment.onReviewsChange(placeDetails.getReviews());
+        // Update data on information fragment
         this.informationFragment.onInfoChange(placeDetails);
+        // Update data on gallery fragment
         this.galleryFragment.onPhotosChange(placeDetails.getPhotos_links());
         Log.d(TAG,placeDetails.getReviews().toString());
     }

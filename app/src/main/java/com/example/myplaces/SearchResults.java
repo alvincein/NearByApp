@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class SearchResults extends AppCompatActivity {
 
-    private static String TAG = "TEO";
+    private static String TAG = "SearchResults";
     private SearchResultsAdapter adapter;
     private ImageButton bck_btn;
     private TextView results_num;
@@ -41,7 +41,7 @@ public class SearchResults extends AppCompatActivity {
 
         if(places != null){
 
-            // set up the RecyclerView
+            // Set up the RecyclerView
             RecyclerView recyclerView = findViewById(R.id.list);
             recyclerView.setHasFixedSize(true);
             // Setting up cache for performance purposes
